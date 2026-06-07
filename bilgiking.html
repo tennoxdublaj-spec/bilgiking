@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BilgiKing – Online Bilgi Yarışması</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0a0f;
+  --surface:#13131a;
+  --surface2:#1c1c26;
+  --border:#2a2a3a;
+  --accent:#7c6af7;
+  --accent2:#4fd1c5;
+  --gold:#f6c94e;
+  --danger:#f56565;
+  --success:#68d391;
+  --text:#f0f0ff;
+  --muted:#7070a0;
+  --radius:12px;
+  --font-head:'Syne',sans-serif;
+  --font-body:'DM Sans',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at 20% 20%,rgba(124,106,247,.08) 0%,transparent 60%),radial-gradient(ellipse at 80% 80%,rgba(79,209,197,.06) 0%,transparent 60%);pointer-events:none;z-index:0}
+
+.screen{display:none;position:relative;z-index:1;padding:1.5rem;min-height:100vh}
+.screen.active{display:flex;flex-direction:column}
+
+/* ─── AUTH ─── */
+.auth-wrap{max-width:400px;width:100%;margin:auto;padding:2rem 0}
+.logo-area{text-align:center;margin-bottom:2rem}
+.logo-icon{font-size:52px;margin-bottom:8px;display:block}
+.logo-title{font-family:var(--font-head);font-size:36px;font-weight:800;letter-spacing:-1px;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.logo-sub{color:var(--muted);font-size:14px;margin-top:4px}
+.glass-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.75rem;backdrop-filter:blur(10px)}
+.tabs{display:flex;background:var(--surface2);border-radius:8px;padding:4px;margin-bottom:1.5rem;gap:4px}
+.tab-btn{flex:1;padding:8px;border:none;background:none;color:var(--muted);cursor:pointer;border-radius:6px;font-family:var(--font-body);font-size:14px;font-weight:500;transition:.2s}
+.tab-btn.active{background:var(--accent);color:#fff}
+label{font-size:12px;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;display:block;margin-bottom:4px;margin-top:12px}
+input,select{width:100%;padding:10px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--font-body);font-size:14px;outline:none;transition:.2s}
+input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(124,106,247,.15)}
+select option{background:var(--surface)}
+.btn{padding:11px 20px;border:none;border-radius:8px;font-family:var(--font-body);font-size:14px;font-weight:500;cursor:pointer;transition:.2s;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.btn-primary{background:var(--accent);color:#fff;width:100%;margin-top:16px;justify-content:center;font-size:15px;padding:13px}
+.btn-outline{background:none;border:1px solid var(--border);color:var(--text)}
+.btn-outline:hover{border-color:var(--accent);background:rgba(124,106,247,.1)}
+.btn-danger{background:var(--danger);color:#fff}
+.btn-success{background:var(--success);color:#000}
+.btn-sm{padding:6px 12px;font-size:12px}
+.err{color:var(--danger);font-size:12px;margin-top:8px;min-height:16px}
+.hint{color:var(--muted);font-size:11px;text-align:center;margin-top:12px}
+.hint b{color:var(--accent2)}
+
+/* ─── TOPBAR ─── */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.5rem;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10;flex-wrap:wrap;gap:8px}
+.topbar-brand{font-family:var(--font-head);font-size:20px;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.topbar-right{display:flex;align-items:center;gap:8px}
+.avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff;flex-shrink:0}
+.badge{padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-admin{background:rgba(246,201,78,.15);color:var(--gold);border:1px solid rgba(246,201,78,.3)}
+.badge-user{background:rgba(79,209,197,.1);color:var(--accent2);border:1px solid rgba(79,209,197,.2)}
+
+/* ─── LOBBY ─── */
+.lobby-wrap{max-width:700px;width:100%;margin:0 auto;padding:1.5rem 0}
+.section-title{font-family:var(--font-head);font-size:18px;font-weight:700;margin-bottom:12px;color:var(--text)}
+.create-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;margin-bottom:1.5rem}
+.input-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.input-row input,.input-row select{margin:0;flex:1;min-width:140px}
+.room-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;transition:.2s;flex-wrap:wrap;gap:8px}
+.room-item:hover{border-color:var(--accent);background:var(--surface2)}
+.room-name{font-weight:600;font-size:15px;margin-bottom:2px}
+.room-meta{font-size:12px;color:var(--muted)}
+.room-code{display:inline-block;font-family:monospace;background:var(--surface2);border:1px solid var(--border);padding:1px 7px;border-radius:5px;font-size:11px;color:var(--accent2)}
+.empty-state{text-align:center;padding:3rem;color:var(--muted)}
+.empty-icon{font-size:40px;margin-bottom:8px}
+
+/* ─── WAITING ─── */
+.wait-wrap{max-width:560px;width:100%;margin:0 auto;padding:1.5rem 0}
+.code-display{background:var(--surface2);border:2px dashed var(--border);border-radius:var(--radius);padding:1rem;text-align:center;margin-bottom:1rem}
+.code-val{font-family:'Syne',monospace;font-size:28px;font-weight:800;letter-spacing:6px;color:var(--accent2)}
+.code-lbl{font-size:11px;color:var(--muted);text-transform:uppercase;margin-top:2px}
+.player-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.player-item:last-child{border-bottom:none}
+.start-btn{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;width:100%;padding:14px;font-size:16px;font-weight:600;border-radius:var(--radius);border:none;cursor:pointer;font-family:var(--font-head);letter-spacing:.5px;margin-top:1rem;transition:.2s}
+.start-btn:hover{filter:brightness(1.08);transform:translateY(-2px)}
+.waiting-msg{text-align:center;padding:1rem;color:var(--muted);font-size:14px}
+
+/* ─── GAME ─── */
+.game-wrap{max-width:620px;width:100%;margin:0 auto;padding:1.5rem 0;flex:1;display:flex;flex-direction:column}
+.game-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px}
+.game-meta{font-size:13px;color:var(--muted)}
+.game-meta b{color:var(--text)}
+.score-live{font-family:var(--font-head);font-size:18px;font-weight:700;color:var(--gold)}
+.timer-wrap{margin-bottom:1rem}
+.timer-label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:4px}
+.timer-bar{height:6px;background:var(--surface2);border-radius:3px;overflow:hidden}
+.timer-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:3px;transition:width .5s linear}
+.q-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.75rem;margin-bottom:1rem;flex:1}
+.q-category{font-size:11px;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;font-weight:600}
+.q-text{font-family:var(--font-head);font-size:20px;font-weight:600;line-height:1.4;color:var(--text)}
+.opts-grid{display:grid;gap:8px;margin-bottom:1rem}
+.opt{padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:10px;text-align:left;color:var(--text);font-family:var(--font-body);font-size:14px;cursor:pointer;transition:.15s;display:flex;align-items:center;gap:10px;width:100%}
+.opt:hover:not(:disabled){border-color:var(--accent);background:rgba(124,106,247,.1);transform:translateX(3px)}
+.opt-letter{width:26px;height:26px;border-radius:6px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0}
+.opt.correct{border-color:var(--success);background:rgba(104,211,145,.12);color:var(--success)}
+.opt.correct .opt-letter{background:rgba(104,211,145,.2);color:var(--success)}
+.opt.wrong{border-color:var(--danger);background:rgba(245,101,101,.1);color:var(--danger)}
+.opt.wrong .opt-letter{background:rgba(245,101,101,.15);color:var(--danger)}
+.opt:disabled{cursor:default;transform:none}
+.feedback{text-align:center;font-size:15px;font-weight:600;min-height:24px;padding:4px}
+.live-scores{margin-top:auto}
+.live-row{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:8px;margin-bottom:4px;font-size:13px}
+.live-row.me{background:rgba(124,106,247,.12);border:1px solid rgba(124,106,247,.2)}
+
+/* ─── RESULT ─── */
+.result-wrap{max-width:520px;width:100%;margin:0 auto;padding:1.5rem 0;text-align:center}
+.result-hero{padding:2rem 0}
+.result-trophy{font-size:64px;margin-bottom:12px;display:block}
+.result-title{font-family:var(--font-head);font-size:30px;font-weight:800;margin-bottom:6px}
+.result-sub{color:var(--muted);font-size:15px}
+.score-board{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin:1.5rem 0}
+.score-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border)}
+.score-item:last-child{border-bottom:none}
+.score-item.me{background:rgba(124,106,247,.1)}
+.rank-num{font-family:var(--font-head);font-size:20px;font-weight:800;width:32px;text-align:center}
+.rank-pts{margin-left:auto;font-family:var(--font-head);font-size:16px;font-weight:700;color:var(--gold)}
+
+/* ─── ADMIN ─── */
+.admin-wrap{max-width:760px;width:100%;margin:0 auto;padding:1.5rem 0}
+.metrics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:1.5rem}
+.metric-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;text-align:center}
+.metric-val{font-family:var(--font-head);font-size:28px;font-weight:800}
+.metric-val.accent{color:var(--accent)}
+.metric-val.gold{color:var(--gold)}
+.metric-val.green{color:var(--success)}
+.metric-val.cyan{color:var(--accent2)}
+.metric-lbl{font-size:11px;color:var(--muted);margin-top:3px;text-transform:uppercase}
+.admin-tabs{display:flex;gap:6px;margin-bottom:1rem;flex-wrap:wrap}
+.admin-tab{padding:7px 16px;background:none;border:1px solid var(--border);border-radius:20px;color:var(--muted);cursor:pointer;font-family:var(--font-body);font-size:13px;transition:.2s}
+.admin-tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.log-entry{padding:8px 12px;border-bottom:1px solid var(--border);font-size:12px;font-family:monospace;color:var(--muted);display:flex;gap:10px}
+.log-time{color:var(--accent);flex-shrink:0;min-width:70px}
+.log-type{color:var(--accent2);flex-shrink:0;min-width:60px}
+.log-msg{color:var(--text)}
+.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.t-row{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.t-row:last-child{border-bottom:none}
+.t-row:first-child{background:var(--surface2);font-size:11px;text-transform:uppercase;color:var(--muted);letter-spacing:.5px}
+.t-name{flex:1;min-width:80px;font-weight:500}
+.t-meta{color:var(--muted);font-size:12px;min-width:60px}
+.t-actions{margin-left:auto}
+
+@media(max-width:480px){
+  .q-text{font-size:17px}
+  .result-title{font-size:24px}
+  .metric-val{font-size:22px}
+  .code-val{font-size:22px;letter-spacing:4px}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════ AUTH ══════════════ -->
+<div id="s-auth" class="screen active" style="align-items:center;justify-content:center">
+  <div class="auth-wrap">
+    <div class="logo-area">
+      <span class="logo-icon">🏆</span>
+      <div class="logo-title">BilgiKing</div>
+      <div class="logo-sub">Online Bilgi Yarışması</div>
+    </div>
+    <div class="glass-card">
+      <div class="tabs">
+        <button class="tab-btn active" id="tab-login" onclick="authTab('login')">Giriş Yap</button>
+        <button class="tab-btn" id="tab-reg" onclick="authTab('reg')">Kayıt Ol</button>
+      </div>
+      <div id="form-login">
+        <label>Kullanıcı Adı</label>
+        <input id="l-user" placeholder="kullaniciadi" autocomplete="username">
+        <label>Şifre</label>
+        <input id="l-pass" type="password" placeholder="••••••" autocomplete="current-password">
+        <div class="err" id="l-err"></div>
+        <button class="btn btn-primary" onclick="doLogin()">Giriş Yap →</button>
+
+      </div>
+      <div id="form-reg" style="display:none">
+        <label>Kullanıcı Adı</label>
+        <input id="r-user" placeholder="yenikullanici" autocomplete="username">
+        <label>Şifre</label>
+        <input id="r-pass" type="password" placeholder="En az 4 karakter" autocomplete="new-password">
+        <label>Şifre Tekrar</label>
+        <input id="r-pass2" type="password" placeholder="Şifrenizi tekrar girin">
+        <div class="err" id="r-err"></div>
+        <button class="btn btn-primary" onclick="doRegister()">Kayıt Ol →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ LOBBY ══════════════ -->
+<div id="s-lobby" class="screen">
+  <div class="topbar">
+    <span class="topbar-brand">🏆 BilgiKing</span>
+    <div class="topbar-right">
+      <div class="avatar" id="lb-avatar">?</div>
+      <span id="lb-uname" style="font-size:14px;font-weight:500"></span>
+      <span id="lb-badge"></span>
+      <button class="btn btn-outline btn-sm" id="btn-admin" onclick="goAdmin()" style="display:none">Admin</button>
+      <button class="btn btn-outline btn-sm" onclick="doLogout()">Çıkış</button>
+    </div>
+  </div>
+  <div class="lobby-wrap">
+    <div class="create-box">
+      <div class="section-title" style="margin-bottom:4px">Yeni Oda Aç</div>
+      <div class="input-row">
+        <input id="room-name" placeholder="Oda adı...">
+        <select id="room-cat">
+          <option value="genel">🌍 Genel Kültür</option>
+          <option value="bilim">🔬 Bilim</option>
+          <option value="tarih">📜 Tarih</option>
+          <option value="spor">⚽ Spor</option>
+          <option value="teknoloji">💻 Teknoloji</option>
+        </select>
+        <button class="btn btn-primary" style="margin-top:0;width:auto" onclick="createRoom()">+ Aç</button>
+      </div>
+    </div>
+    <div class="section-title">Açık Odalar</div>
+    <div id="room-list"><div class="empty-state"><div class="empty-icon">🎮</div><div>Henüz açık oda yok.<br>İlk odayı sen aç!</div></div></div>
+  </div>
+</div>
+
+<!-- ══════════════ WAITING ══════════════ -->
+<div id="s-waiting" class="screen">
+  <div class="topbar">
+    <button class="btn btn-outline btn-sm" onclick="leaveRoom()">← Lobiye Dön</button>
+    <span id="wt-room-name" style="font-family:var(--font-head);font-weight:700"></span>
+    <span id="wt-cat" style="font-size:13px;color:var(--muted)"></span>
+  </div>
+  <div class="wait-wrap">
+    <div class="code-display">
+      <div class="code-val" id="wt-code">XXXXX</div>
+      <div class="code-lbl">Arkadaşlarına bu kodu ver</div>
+    </div>
+    <div class="glass-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div class="section-title" style="margin:0">Oyuncular (<span id="wt-count">0</span>/8)</div>
+      </div>
+      <div id="wt-players"></div>
+    </div>
+    <div id="wt-host-area" style="display:none">
+      <button class="start-btn" onclick="startGame()">▶ Oyunu Başlat</button>
+      <div style="text-align:center;font-size:12px;color:var(--muted);margin-top:8px">İstediğin zaman başlatabilirsin</div>
+    </div>
+    <div id="wt-wait-msg" class="waiting-msg">⏳ Oda sahibinin başlatması bekleniyor…</div>
+  </div>
+</div>
+
+<!-- ══════════════ GAME ══════════════ -->
+<div id="s-game" class="screen">
+  <div class="topbar">
+    <div class="game-meta">Soru <b id="g-qnum">1</b>/50</div>
+    <div class="score-live" id="g-score">0 puan</div>
+  </div>
+  <div class="game-wrap">
+    <div class="timer-wrap">
+      <div class="timer-label">
+        <span>Süre</span>
+        <span id="g-time">20s</span>
+      </div>
+      <div class="timer-bar"><div class="timer-fill" id="g-timer-fill" style="width:100%"></div></div>
+    </div>
+    <div class="q-card">
+      <div class="q-category" id="g-cat"></div>
+      <div class="q-text" id="g-question">Yükleniyor…</div>
+    </div>
+    <div class="opts-grid" id="g-opts"></div>
+    <div class="feedback" id="g-feedback"></div>
+    <div class="live-scores" id="g-live"></div>
+  </div>
+</div>
+
+<!-- ══════════════ RESULT ══════════════ -->
+<div id="s-result" class="screen" style="align-items:center;justify-content:center">
+  <div class="result-wrap">
+    <div class="result-hero">
+      <span class="result-trophy" id="res-trophy">🏆</span>
+      <div class="result-title" id="res-title">Oyun Bitti!</div>
+      <div class="result-sub" id="res-sub"></div>
+    </div>
+    <div class="score-board" id="res-board"></div>
+    <button class="btn btn-primary" onclick="backToLobby()">Lobiye Dön</button>
+  </div>
+</div>
+
+<!-- ══════════════ ADMIN ══════════════ -->
+<div id="s-admin" class="screen">
+  <div class="topbar">
+    <button class="btn btn-outline btn-sm" onclick="goLobby()">← Lobiye Dön</button>
+    <span style="font-family:var(--font-head);font-weight:700">⚙️ Admin Paneli</span>
+    <button class="btn btn-outline btn-sm" onclick="refreshAdmin()">↺ Yenile</button>
+  </div>
+  <div class="admin-wrap">
+    <div class="metrics-grid">
+      <div class="metric-card"><div class="metric-val accent" id="adm-users">0</div><div class="metric-lbl">Kullanıcı</div></div>
+      <div class="metric-card"><div class="metric-val gold" id="adm-games">0</div><div class="metric-lbl">Oyun</div></div>
+      <div class="metric-card"><div class="metric-val cyan" id="adm-rooms">0</div><div class="metric-lbl">Aktif Oda</div></div>
+      <div class="metric-card"><div class="metric-val green" id="adm-logs">0</div><div class="metric-lbl">Log</div></div>
+    </div>
+    <div class="admin-tabs">
+      <button class="admin-tab active" id="at-logs" onclick="admTab('logs')">📋 Loglar</button>
+      <button class="admin-tab" id="at-users" onclick="admTab('users')">👥 Kullanıcılar</button>
+      <button class="admin-tab" id="at-rooms" onclick="admTab('rooms')">🏠 Odalar</button>
+    </div>
+    <div class="table-wrap" id="adm-content"></div>
+  </div>
+</div>
+
+<!-- ══════════════ FIREBASE + GAME LOGIC ══════════════ -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, set, get, push, onValue, update, remove, serverTimestamp }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+/* ──────────────────────────────────────
+   🔥 FIREBASE AYARLARI
+   Bu bölümü kendi Firebase projenizle değiştirin!
+   Kurulum adımları dosyanın sonundaki yorumlarda.
+──────────────────────────────────────── */
+const firebaseConfig = {
+  apiKey: "AIzaSyAWOp7o4HryoBbuZYNs0OddDEl_8n-J_Sc",
+  authDomain: "bilgiking-80279.firebaseapp.com",
+  databaseURL: "https://bilgiking-80279-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "bilgiking-80279",
+  storageBucket: "bilgiking-80279.firebasestorage.app",
+  messagingSenderId: "177143017985",
+  appId: "1:177143017985:web:1f9f3957ae12e92b208600",
+  measurementId: "G-3V2TWBPTJM"
+};
+
+// Firebase bağlantısını dene, yoksa offline mod
+let db = null;
+let ONLINE = false;
+try {
+  const app = initializeApp(firebaseConfig);
+  db = getDatabase(app);
+  // Bağlantıyı test et
+  if (!firebaseConfig.apiKey.startsWith("BURAYA")) {
+    ONLINE = true;
+  }
+} catch(e) {}
+
+/* ──────────────────────────────────────
+   SORULAR
+──────────────────────────────────────── */
+const QUESTIONS = {
+  genel:[
+    {q:"Türkiye'nin başkenti neresidir?",opts:["İstanbul","Ankara","İzmir","Bursa"],ans:1},
+    {q:"Dünya'nın en büyük okyanusu hangisidir?",opts:["Atlantik","Hint","Arktik","Pasifik"],ans:3},
+    {q:"Su'nun kimyasal formülü nedir?",opts:["CO₂","H₂O","O₂","NaCl"],ans:1},
+    {q:"1 yılda kaç hafta vardır?",opts:["48","50","52","54"],ans:2},
+    {q:"Güneş sistemindeki en büyük gezegen hangisidir?",opts:["Satürn","Jüpiter","Neptün","Uranüs"],ans:1},
+    {q:"Hangi renk en uzun dalga boyuna sahiptir?",opts:["Mavi","Yeşil","Sarı","Kırmızı"],ans:3},
+    {q:"Ay'a ilk ayak basan astronot kimdir?",opts:["Buzz Aldrin","Yuri Gagarin","Neil Armstrong","John Glenn"],ans:2},
+    {q:"Türkiye'nin en uzun nehri hangisidir?",opts:["Fırat","Kızılırmak","Sakarya","Seyhan"],ans:1},
+    {q:"Au sembolü hangi elementin simgesidir?",opts:["Gümüş","Bakır","Altın","Alüminyum"],ans:2},
+    {q:"İnsanın kaç kromozomu vardır?",opts:["44","46","48","50"],ans:1},
+    {q:"Dünya'nın en yüksek dağı hangisidir?",opts:["K2","Kangchenjunga","Everest","Lhotse"],ans:2},
+    {q:"Türkiye kaç ilden oluşur?",opts:["78","79","80","81"],ans:3},
+    {q:"Hangi gezegen Güneş'e en yakındır?",opts:["Venüs","Mars","Merkür","Dünya"],ans:2},
+    {q:"Bir dakika kaç saniyedir?",opts:["30","60","90","120"],ans:1},
+    {q:"Türkiye'nin en büyük gölü hangisidir?",opts:["Tuz Gölü","Eğirdir","Van Gölü","İznik"],ans:2},
+    {q:"Hangi hayvan en hızlı koşar?",opts:["Aslan","Çita","Leopar","At"],ans:1},
+    {q:"Okyanusların tuzluluk oranı yaklaşık yüzde kaçtır?",opts:["1,5","2,5","3,5","4,5"],ans:2},
+    {q:"Hangi ülkenin nüfusu en fazladır?",opts:["Hindistan","ABD","Çin","Endonezya"],ans:0},
+    {q:"Türkiye'nin para birimi nedir?",opts:["Euro","Dolar","Lira","Frank"],ans:2},
+    {q:"Bir yılda kaç gün vardır?",opts:["354","364","365","366"],ans:2},
+    {q:"Hangi element havada en çok bulunur?",opts:["Oksijen","Karbondioksit","Azot","Argon"],ans:2},
+    {q:"Dünyanın kaç kıtası vardır?",opts:["5","6","7","8"],ans:2},
+    {q:"İstanbul hangi iki kıta arasındadır?",opts:["Afrika-Asya","Asya-Avrupa","Avrupa-Amerika","Asya-Avustralya"],ans:1},
+    {q:"Hangi ülkenin bayrağında ay-yıldız bulunur?",opts:["Yunanistan","İtalya","Türkiye","Portekiz"],ans:2},
+    {q:"Dünya'nın en büyük ülkesi hangisidir?",opts:["Kanada","ABD","Rusya","Çin"],ans:2},
+    {q:"Türkiye'nin en kalabalık şehri hangisidir?",opts:["Ankara","İzmir","Bursa","İstanbul"],ans:3},
+    {q:"Hangi hayvan hem karada hem suda yaşar?",opts:["Timsah","Yunus","Köpekbalığı","Kartal"],ans:0},
+    {q:"Bir saatte kaç dakika vardır?",opts:["30","45","60","90"],ans:2},
+    {q:"Hangi meyve C vitamini bakımından en zengindir?",opts:["Elma","Muz","Portakal","Üzüm"],ans:2},
+    {q:"Türkiye hangi yarımkürededir?",opts:["Güney","Kuzey","Her ikisi","Hiçbiri"],ans:1}
+  ],
+  bilim:[
+    {q:"Işığın boşluktaki hızı yaklaşık kaç km/s'dir?",opts:["100.000","200.000","300.000","400.000"],ans:2},
+    {q:"İnsan vücudunda kaç kemik vardır?",opts:["186","196","206","216"],ans:2},
+    {q:"Atom çekirdeği nelerden oluşur?",opts:["Elektron ve proton","Proton ve nötron","Nötron ve elektron","Quark ve bozon"],ans:1},
+    {q:"Hangi vitamin güneş ışığıyla sentezlenir?",opts:["A Vitamini","B12 Vitamini","C Vitamini","D Vitamini"],ans:3},
+    {q:"Basınç birimi nedir?",opts:["Newton","Pascal","Joule","Watt"],ans:1},
+    {q:"Enerji birimi nedir?",opts:["Watt","Pascal","Joule","Newton"],ans:2},
+    {q:"pH 7 olan çözelti nasıldır?",opts:["Asidik","Nötr","Bazik","Tampon"],ans:1},
+    {q:"Fotosentez hangi organel sayesinde gerçekleşir?",opts:["Mitokondri","Ribozom","Kloroplast","Çekirdek"],ans:2},
+    {q:"DNA çift sarmalını kim keşfetti?",opts:["Darwin","Watson & Crick","Mendel","Pasteur"],ans:1},
+    {q:"Hangi madde en iyi elektrik iletkenidir?",opts:["Bakır","Altın","Gümüş","Demir"],ans:2},
+    {q:"Hücrenin enerji merkezi hangi organeldir?",opts:["Ribozom","Çekirdek","Mitokondri","Golgi"],ans:2},
+    {q:"Periyodik tablonun ilk elementi hangisidir?",opts:["Helyum","Lityum","Hidrojen","Oksijen"],ans:2},
+    {q:"Ses havada yaklaşık kaç m/s hızla yayılır?",opts:["200","340","500","700"],ans:1},
+    {q:"İnsan vücudunda en fazla hangi element bulunur?",opts:["Karbon","Azot","Oksijen","Kalsiyum"],ans:2},
+    {q:"Evrim teorisini kim ortaya attı?",opts:["Newton","Einstein","Darwin","Pasteur"],ans:2},
+    {q:"Hangi kan grubu evrensel donördür?",opts:["A","B","AB","0"],ans:3},
+    {q:"Işık yılı neyi ölçer?",opts:["Zaman","Kütle","Mesafe","Hız"],ans:2},
+    {q:"İnsan beyninin ağırlığı ortalama kaç gramdır?",opts:["800","1000","1400","1800"],ans:2},
+    {q:"Suyun kaynama noktası kaç derecedir?",opts:["80","90","100","110"],ans:2},
+    {q:"Hangi gezegen kendi ekseni etrafında en hızlı döner?",opts:["Mars","Satürn","Jüpiter","Neptün"],ans:2},
+    {q:"Gravitasyonu kim keşfetti?",opts:["Einstein","Galileo","Newton","Kepler"],ans:2},
+    {q:"Suyun donma noktası kaç derecedir?",opts:["-10","0","5","10"],ans:1},
+    {q:"Hangi organ kan pompalar?",opts:["Akciğer","Beyin","Karaciğer","Kalp"],ans:3},
+    {q:"Görelilik teorisini kim geliştirdi?",opts:["Newton","Bohr","Einstein","Hawking"],ans:2},
+    {q:"Hangi element radyoaktiftir?",opts:["Demir","Uranyum","Bakır","Altın"],ans:1},
+    {q:"İnsan gözü kaç renge kadar ayırt edebilir?",opts:["100 bin","1 milyon","10 milyon","100 milyon"],ans:2},
+    {q:"Tuz'un kimyasal formülü nedir?",opts:["KCl","NaCl","CaCl","MgCl"],ans:1},
+    {q:"Hangi vitamin pıhtılaşmada rol oynar?",opts:["A","C","D","K"],ans:3},
+    {q:"Atomun merkezine ne denir?",opts:["Elektron","Nötron","Çekirdek","Proton"],ans:2},
+    {q:"Dünya'nın yaklaşık yaşı kaç milyar yıldır?",opts:["2,5","3,5","4,5","5,5"],ans:2}
+  ],
+  tarih:[
+    {q:"Osmanlı İmparatorluğu hangi yılda kuruldu?",opts:["1299","1309","1389","1453"],ans:0},
+    {q:"Türkiye Cumhuriyeti hangi yılda ilan edildi?",opts:["1920","1921","1922","1923"],ans:3},
+    {q:"Birinci Dünya Savaşı hangi yılda başladı?",opts:["1912","1914","1916","1918"],ans:1},
+    {q:"İstanbul hangi yılda fethedildi?",opts:["1453","1461","1481","1492"],ans:0},
+    {q:"Atatürk hangi yılda doğdu?",opts:["1879","1880","1881","1882"],ans:2},
+    {q:"Fransız Devrimi hangi yılda gerçekleşti?",opts:["1776","1789","1799","1804"],ans:1},
+    {q:"İkinci Dünya Savaşı hangi yılda sona erdi?",opts:["1943","1944","1945","1946"],ans:2},
+    {q:"Kurtuluş Savaşı hangi antlaşmayla sona erdi?",opts:["Sevr","Mondros","Lozan","Kars"],ans:2},
+    {q:"Magna Carta hangi yılda imzalandı?",opts:["1205","1215","1225","1235"],ans:1},
+    {q:"Sümerler hangi bölgede yaşamıştır?",opts:["Mısır","Mezopotamya","Anadolu","İran"],ans:1},
+    {q:"Roma İmparatorluğu hangi yılda yıkıldı?",opts:["376","476","576","676"],ans:1},
+    {q:"Hangi uygarlık piramitleri inşa etmiştir?",opts:["Sümerler","Mayalar","Mısırlılar","İnkalar"],ans:2},
+    {q:"Türkiye Büyük Millet Meclisi hangi yılda açıldı?",opts:["1919","1920","1921","1922"],ans:1},
+    {q:"Amerika hangi yılda keşfedildi?",opts:["1389","1453","1492","1512"],ans:2},
+    {q:"Atatürk hangi yılda vefat etti?",opts:["1936","1937","1938","1939"],ans:2},
+    {q:"Hangi savaş Çanakkale'de yaşandı?",opts:["Birinci Dünya Savaşı","İkinci Dünya Savaşı","Kurtuluş Savaşı","Balkan Savaşları"],ans:0},
+    {q:"Osmanlı İmparatorluğu hangi yılda sona erdi?",opts:["1920","1921","1922","1923"],ans:2},
+    {q:"Harf devrimi hangi yılda yapıldı?",opts:["1926","1927","1928","1929"],ans:2},
+    {q:"Sovyetler Birliği hangi yılda dağıldı?",opts:["1989","1990","1991","1992"],ans:2},
+    {q:"Hangi ülke Birinci Dünya Savaşı'nı kaybetti?",opts:["Fransa","İngiltere","Almanya","Rusya"],ans:2},
+    {q:"Berlin Duvarı hangi yılda yıkıldı?",opts:["1987","1988","1989","1990"],ans:2},
+    {q:"Türkiye Cumhuriyeti'nin ilk Cumhurbaşkanı kimdir?",opts:["İsmet İnönü","Atatürk","Celal Bayar","Adnan Menderes"],ans:1},
+    {q:"Hangi imparatorluk İpek Yolu'nu kontrol etti?",opts:["Roma","Osmanlı","Moğol","Çin"],ans:2},
+    {q:"Fransız İhtilali'nin sloganı nedir?",opts:["Güç, Adalet, Özgürlük","Özgürlük, Eşitlik, Kardeşlik","Barış, Sevgi, Umut","Vatan, Millet, Devlet"],ans:1},
+    {q:"Türkiye NATO'ya hangi yılda katıldı?",opts:["1949","1950","1952","1955"],ans:2},
+    {q:"Hangi savaşta Fatih Sultan Mehmet İstanbul'u fethetti?",opts:["1453 İstanbul Kuşatması","Çaldıran","Mohaç","Niğbolu"],ans:0},
+    {q:"Sanayi Devrimi hangi ülkede başladı?",opts:["Fransa","Almanya","İngiltere","ABD"],ans:2},
+    {q:"Anadolu'daki ilk Türk devleti hangisidir?",opts:["Osmanlı","Selçuklu","Danişmentliler","Artuklu"],ans:1},
+    {q:"Hangi antlaşmayla Birinci Dünya Savaşı resmen sona erdi?",opts:["Versay","Lozan","Mondros","Paris"],ans:0},
+    {q:"Atatürk hangi şehirde doğdu?",opts:["İstanbul","Ankara","Selanik","İzmir"],ans:2}
+  ],
+  spor:[
+    {q:"FIFA Dünya Kupası kaç yılda bir düzenlenir?",opts:["2","3","4","5"],ans:2},
+    {q:"Olimpiyat halkası kaç tanedir?",opts:["4","5","6","7"],ans:1},
+    {q:"Bir futbol maçı kaç dakikadır?",opts:["80","85","90","95"],ans:2},
+    {q:"Basketbolda 3 sayılık atış kaç puan değerindedir?",opts:["1","2","3","4"],ans:2},
+    {q:"Voleybolda bir takımda kaç oyuncu sahada bulunur?",opts:["5","6","7","8"],ans:1},
+    {q:"Tenis'te 'Grand Slam' kaç turnuvadan oluşur?",opts:["2","3","4","5"],ans:2},
+    {q:"Hangi ülke en çok Dünya Kupası kazanmıştır?",opts:["Almanya","Arjantin","Brezilya","İtalya"],ans:2},
+    {q:"100m sprint dünya rekoru kimin adına kayıtlıdır?",opts:["Carl Lewis","Usain Bolt","Asafa Powell","Justin Gatlin"],ans:1},
+    {q:"Türkiye Süper Lig'ini en çok hangi takım kazanmıştır?",opts:["Beşiktaş","Fenerbahçe","Galatasaray","Trabzonspor"],ans:2},
+    {q:"Formula 1'de puan almak için kaçıncılığa kadar girmek gerekir?",opts:["8","10","12","15"],ans:1},
+    {q:"Futbolda bir takımda kaç oyuncu sahada bulunur?",opts:["9","10","11","12"],ans:2},
+    {q:"Hangi sporcuya 'Kral' lakabı takılmıştır?",opts:["Maradona","Ronaldo","Pelé","Messi"],ans:2},
+    {q:"Wimbledon hangi sporda oynanır?",opts:["Futbol","Tenis","Basketbol","Golf"],ans:1},
+    {q:"Türkiye'nin milli futbol takımı en çok hangi turnuvada yarı finale ulaştı?",opts:["Euro 2000","Euro 2008","Dünya Kupası 2002","Dünya Kupası 1954"],ans:2},
+    {q:"Bir basketbol maçı kaç periyottan oluşur?",opts:["2","3","4","5"],ans:2},
+    {q:"Yüzmede olimpik havuz kaç metredir?",opts:["25","50","75","100"],ans:1},
+    {q:"Hangi sporcu en çok olimpiyat altın madalyası kazanmıştır?",opts:["Usain Bolt","Michael Phelps","Carl Lewis","Mark Spitz"],ans:1},
+    {q:"Beyzbol en çok hangi ülkede oynanır?",opts:["Japonya","Küba","ABD","Dominik Cumhuriyeti"],ans:2},
+    {q:"Kriket hangi ülkenin milli sporu sayılır?",opts:["Avustralya","ABD","İngiltere","Güney Afrika"],ans:2},
+    {q:"Halter sporunda en ağır kategori hangisidir?",opts:["+90 kg","+100 kg","+105 kg","+109 kg"],ans:3},
+    {q:"Futbolda sarı kart kaç tane görünce oyuncu ihraç edilir?",opts:["1","2","3","4"],ans:1},
+    {q:"Hangi ülke rugby'nin anavatanıdır?",opts:["Avustralya","Yeni Zelanda","İngiltere","Güney Afrika"],ans:2},
+    {q:"Tour de France hangi spor dalında yapılır?",opts:["Yürüyüş","Bisiklet","Kayak","Motosiklet"],ans:1},
+    {q:"Türkiye hangi yıl Avrupa Şampiyonası'nda 3. oldu?",opts:["2000","2002","2008","2016"],ans:0},
+    {q:"Boks maçı kaç raunddan oluşur (profesyonel)?",opts:["8","10","12","15"],ans:2},
+    {q:"Hangi spor 'centilmenlik sporu' olarak anılır?",opts:["Kriket","Rugby","Golf","Polo"],ans:0},
+    {q:"Olimpiyatlar kaç yılda bir düzenlenir?",opts:["2","3","4","5"],ans:2},
+    {q:"Futbolda gol sayısı eşit olduğunda ne yapılır?",opts:["Süre uzatma","Penaltı atışı","Her ikisi de","Gol farkı"],ans:2},
+    {q:"NBA hangi ülkenin basketbol ligi?",opts:["Kanada","İspanya","ABD","İngiltere"],ans:2},
+    {q:"Hangi Türk sporcu olimpiyat altın madalyası kazanmıştır?",opts:["Naim Süleymanoğlu","Hasan Şaş","Burhan Toprak","Hüseyin Akbaş"],ans:0}
+  ],
+  teknoloji:[
+    {q:"'www' nin açılımı nedir?",opts:["World Wide Workshop","World Wide Web","Wide World Web","World Web Wire"],ans:1},
+    {q:"Python'ı kim yarattı?",opts:["Dennis Ritchie","Guido van Rossum","Linus Torvalds","James Gosling"],ans:1},
+    {q:"CPU'nun açılımı nedir?",opts:["Control Processing Unit","Central Process Unit","Central Processing Unit","Core Processing Unit"],ans:2},
+    {q:"İlk iPhone hangi yılda tanıtıldı?",opts:["2005","2006","2007","2008"],ans:2},
+    {q:"JavaScript'i kim geliştirdi?",opts:["Brendan Eich","Tim Berners-Lee","Linus Torvalds","James Gosling"],ans:0},
+    {q:"Binary'de 1010 sayısı onlukta kaçtır?",opts:["8","10","12","14"],ans:1},
+    {q:"HTTP'nin açılımı nedir?",opts:["HyperText Transfer Protocol","High Transfer Text Protocol","HyperText Transport Protocol","Home Text Transfer Protocol"],ans:0},
+    {q:"Hangi şirket 'Windows' üretiyor?",opts:["Apple","Google","Microsoft","IBM"],ans:2},
+    {q:"RAM'ın açılımı nedir?",opts:["Random Access Memory","Rapid Access Module","Read All Memory","Random Application Memory"],ans:0},
+    {q:"Linux'u kim yarattı?",opts:["Bill Gates","Steve Jobs","Linus Torvalds","Dennis Ritchie"],ans:2},
+    {q:"Google hangi yılda kuruldu?",opts:["1995","1996","1997","1998"],ans:3},
+    {q:"Hangi şirket 'iPhone' üretiyor?",opts:["Samsung","Apple","Google","Sony"],ans:1},
+    {q:"USB'nin açılımı nedir?",opts:["Universal Serial Bus","Universal System Board","Unified Serial Bus","Universal Software Bus"],ans:0},
+    {q:"İlk bilgisayar virüsü hangi yılda ortaya çıktı?",opts:["1971","1981","1991","2001"],ans:0},
+    {q:"Wi-Fi neyin kısaltmasıdır?",opts:["Wireless Fidelity","Wire Frequency","Wireless Frequency","Wide Fidelity"],ans:0},
+    {q:"Hangi programlama dili web geliştirmede en çok kullanılır?",opts:["Python","Java","JavaScript","C++"],ans:2},
+    {q:"GPU ne için kullanılır?",opts:["Ses işleme","Grafik işleme","Ağ işleme","Depolama"],ans:1},
+    {q:"İlk e-posta hangi yılda gönderildi?",opts:["1969","1971","1975","1980"],ans:1},
+    {q:"Blockchain teknolojisi ilk hangi alanda kullanıldı?",opts:["Oyun","Sosyal medya","Kripto para","Bankacılık"],ans:2},
+    {q:"HTML'nin açılımı nedir?",opts:["HyperText Markup Language","High Text Markup Language","HyperText Modern Language","Hyper Transfer Markup Language"],ans:0},
+    {q:"Apple'ı kim kurdu?",opts:["Bill Gates","Elon Musk","Steve Jobs","Mark Zuckerberg"],ans:2},
+    {q:"Yapay zeka için en çok kullanılan programlama dili hangisidir?",opts:["Java","C++","Python","Ruby"],ans:2},
+    {q:"Hangi sosyal medya platformu 2004'te kuruldu?",opts:["Twitter","Instagram","Facebook","YouTube"],ans:2},
+    {q:"SSD ile HDD arasındaki temel fark nedir?",opts:["Boyut","Hız","Renk","Ağırlık"],ans:1},
+    {q:"Kaç bit 1 byte oluşturur?",opts:["4","8","16","32"],ans:1},
+    {q:"İlk ticari web tarayıcısı hangisidir?",opts:["Chrome","Firefox","Mosaic","Internet Explorer"],ans:2},
+    {q:"5G teknolojisi 4G'ye göre ne kadar hızlıdır?",opts:["2 kat","5 kat","10 kat","100 kat"],ans:3},
+    {q:"Hangi şirket Android işletim sistemini satın aldı?",opts:["Apple","Microsoft","Google","Samsung"],ans:2},
+    {q:"PDF'nin açılımı nedir?",opts:["Portable Document Format","Print Document File","Portable Data File","Print Data Format"],ans:0},
+    {q:"İlk programcı kimdir?",opts:["Alan Turing","Ada Lovelace","Grace Hopper","Charles Babbage"],ans:1}
+  ]
+};
+
+/* ──────────────────────────────────────
+   LOCAL STATE (hem online hem offline için)
+──────────────────────────────────────── */
+const S = {
+  users: { admin: { pass: "admin123", role: "admin", games: 0 } },
+  rooms: {},
+  logs: [],
+  gamesPlayed: 0,
+  currentUser: null,
+  currentRoom: null,
+  timerInterval: null,
+  timeLeft: 20,
+  qIdx: 0,
+  answered: false,
+  scores: {},
+  questions: []
+};
+
+function log(type, msg) {
+  const t = new Date().toLocaleTimeString("tr-TR");
+  S.logs.unshift({ time: t, type, msg });
+  if (S.logs.length > 500) S.logs.pop();
+  if (ONLINE && db) {
+    push(ref(db, "logs"), { time: t, type, msg, ts: Date.now() }).catch(() => {});
+  }
+}
+
+/* ──────────────────────────────────────
+   UI HELPERS
+──────────────────────────────────────── */
+const $ = id => document.getElementById(id);
+function show(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  $(id).classList.add("active");
+}
+function catLabel(c) {
+  return { genel: "🌍 Genel Kültür", bilim: "🔬 Bilim", tarih: "📜 Tarih", spor: "⚽ Spor", teknoloji: "💻 Teknoloji" }[c] || c;
+}
+function genCode() { return Math.random().toString(36).substr(2, 5).toUpperCase(); }
+function randId() { return "r" + Date.now() + Math.random().toString(36).substr(2, 4); }
+
+/* ──────────────────────────────────────
+   AUTH
+──────────────────────────────────────── */
+window.authTab = (t) => {
+  $("form-login").style.display = t === "login" ? "block" : "none";
+  $("form-reg").style.display = t === "reg" ? "block" : "none";
+  $("tab-login").className = "tab-btn" + (t === "login" ? " active" : "");
+  $("tab-reg").className = "tab-btn" + (t === "reg" ? " active" : "");
+};
+
+window.doLogin = async () => {
+  const u = $("l-user").value.trim().toLowerCase();
+  const p = $("l-pass").value;
+  $("l-err").textContent = "";
+  if (!u || !p) { $("l-err").textContent = "Tüm alanları doldurun."; return; }
+  
+  let userFound = null;
+  if (ONLINE && db) {
+    try {
+      const snap = await get(ref(db, "users/" + u));
+      if (snap.exists()) userFound = snap.val();
+    } catch(e) {}
+  } else {
+    userFound = S.users[u];
+  }
+  
+  if (!userFound || userFound.pass !== p) {
+    $("l-err").textContent = "Kullanıcı adı veya şifre yanlış."; return;
+  }
+  S.currentUser = { name: u, role: userFound.role };
+  log("auth", `${u} giriş yaptı`);
+  goLobby();
+};
+
+window.doRegister = async () => {
+  const u = $("r-user").value.trim().toLowerCase();
+  const p = $("r-pass").value;
+  const p2 = $("r-pass2").value;
+  $("r-err").textContent = "";
+  if (!u || !p || !p2) { $("r-err").textContent = "Tüm alanları doldurun."; return; }
+  if (u.length < 3) { $("r-err").textContent = "Kullanıcı adı en az 3 karakter."; return; }
+  if (p.length < 4) { $("r-err").textContent = "Şifre en az 4 karakter."; return; }
+  if (p !== p2) { $("r-err").textContent = "Şifreler eşleşmiyor."; return; }
+  if (u === "admin") { $("r-err").textContent = "Bu isim kullanılamaz."; return; }
+  
+  if (ONLINE && db) {
+    try {
+      const snap = await get(ref(db, "users/" + u));
+      if (snap.exists()) { $("r-err").textContent = "Bu kullanıcı adı alınmış."; return; }
+      await set(ref(db, "users/" + u), { pass: p, role: "user", games: 0 });
+    } catch(e) {
+      if (S.users[u]) { $("r-err").textContent = "Bu kullanıcı adı alınmış."; return; }
+      S.users[u] = { pass: p, role: "user", games: 0 };
+    }
+  } else {
+    if (S.users[u]) { $("r-err").textContent = "Bu kullanıcı adı alınmış."; return; }
+    S.users[u] = { pass: p, role: "user", games: 0 };
+  }
+  
+  S.currentUser = { name: u, role: "user" };
+  log("auth", `${u} kayıt oldu`);
+  goLobby();
+};
+
+window.doLogout = () => {
+  log("auth", `${S.currentUser.name} çıkış yaptı`);
+  S.currentUser = null;
+  show("s-auth");
+};
+
+/* ──────────────────────────────────────
+   LOBBY
+──────────────────────────────────────── */
+window.goLobby = () => {
+  show("s-lobby");
+  const u = S.currentUser;
+  $("lb-avatar").textContent = u.name[0].toUpperCase();
+  $("lb-uname").textContent = u.name;
+  $("lb-badge").innerHTML = u.role === "admin"
+    ? '<span class="badge badge-admin">Admin</span>'
+    : '<span class="badge badge-user">Üye</span>';
+  $("btn-admin").style.display = u.role === "admin" ? "inline-flex" : "none";
+  
+  if (ONLINE && db) {
+    onValue(ref(db, "rooms"), snap => {
+      const rooms = snap.val() || {};
+      S.rooms = rooms;
+      renderRoomList(rooms);
+    });
+  } else {
+    renderRoomList(S.rooms);
+  }
+};
+
+function renderRoomList(rooms) {
+  const open = Object.values(rooms).filter(r => r.status === "waiting");
+  if (!open.length) {
+    $("room-list").innerHTML = '<div class="empty-state"><div class="empty-icon">🎮</div><div>Henüz açık oda yok.<br>İlk odayı sen aç!</div></div>';
+    return;
+  }
+  $("room-list").innerHTML = open.map(r => `
+    <div class="room-item">
+      <div>
+        <div class="room-name">${r.name}</div>
+        <div class="room-meta">${catLabel(r.cat)} · ${(r.players||[]).length}/8 oyuncu · <span class="room-code">#${r.code}</span></div>
+      </div>
+      <button class="btn btn-outline" onclick="joinRoom('${r.id}')">Katıl →</button>
+    </div>`).join("");
+}
+
+window.createRoom = async () => {
+  const name = $("room-name").value.trim();
+  const cat = $("room-cat").value;
+  if (!name) { alert("Oda adı girin"); return; }
+  const id = randId();
+  const code = genCode();
+  const room = { id, name, cat, code, players: [S.currentUser.name], host: S.currentUser.name, status: "waiting", created: Date.now() };
+  
+  if (ONLINE && db) {
+    await set(ref(db, "rooms/" + id), room).catch(() => { S.rooms[id] = room; });
+  } else {
+    S.rooms[id] = room;
+  }
+  
+  log("room", `${S.currentUser.name} "${name}" odasını oluşturdu`);
+  S.currentRoom = id;
+  $("room-name").value = "";
+  showWaiting(room);
+};
+
+window.joinRoom = async (id) => {
+  let room = S.rooms[id];
+  if (ONLINE && db) {
+    const snap = await get(ref(db, "rooms/" + id)).catch(() => null);
+    if (snap && snap.exists()) room = snap.val();
+  }
+  if (!room || room.status !== "waiting") { alert("Oda artık mevcut değil."); goLobby(); return; }
+  if ((room.players || []).length >= 8) { alert("Oda dolu!"); return; }
+  if (!(room.players || []).includes(S.currentUser.name)) {
+    const players = [...(room.players || []), S.currentUser.name];
+    if (ONLINE && db) {
+      await update(ref(db, "rooms/" + id), { players }).catch(() => { room.players = players; });
+    } else {
+      room.players = players;
+    }
+  }
+  log("room", `${S.currentUser.name} "${room.name}" odasına katıldı`);
+  S.currentRoom = id;
+  showWaiting(room);
+};
+
+/* ──────────────────────────────────────
+   WAITING ROOM
+──────────────────────────────────────── */
+function showWaiting(room) {
+  show("s-waiting");
+  $("wt-room-name").textContent = room.name;
+  $("wt-cat").textContent = catLabel(room.cat);
+  $("wt-code").textContent = room.code;
+  const isHost = room.host === S.currentUser.name;
+  $("wt-host-area").style.display = isHost ? "block" : "none";
+  $("wt-wait-msg").style.display = isHost ? "none" : "block";
+  renderWaitPlayers(room.players || []);
+  
+  if (ONLINE && db) {
+    onValue(ref(db, "rooms/" + room.id), snap => {
+      if (!snap.exists()) { goLobby(); return; }
+      const r = snap.val();
+      renderWaitPlayers(r.players || []);
+      $("wt-count").textContent = (r.players || []).length;
+      if (r.status === "playing" && !isHost) {
+        S.currentRoom = room.id;
+        startGameClient(r);
+      }
+    });
+  }
+}
+
+function renderWaitPlayers(players) {
+  $("wt-count").textContent = players.length;
+  $("wt-players").innerHTML = players.map(p => `
+    <div class="player-item">
+      <div class="avatar">${p[0].toUpperCase()}</div>
+      <span style="font-weight:500">${p}</span>
+      ${p === S.rooms[S.currentRoom]?.host || (!ONLINE && S.rooms[S.currentRoom]?.host === p)
+        ? '<span class="badge badge-admin" style="margin-left:auto">Kurucu</span>' : ""}
+    </div>`).join("");
+}
+
+window.leaveRoom = async () => {
+  const id = S.currentRoom;
+  if (id) {
+    if (ONLINE && db) {
+      const snap = await get(ref(db, "rooms/" + id)).catch(() => null);
+      if (snap && snap.exists()) {
+        const r = snap.val();
+        const players = (r.players || []).filter(p => p !== S.currentUser.name);
+        if (players.length === 0) await remove(ref(db, "rooms/" + id)).catch(() => {});
+        else await update(ref(db, "rooms/" + id), { players }).catch(() => {});
+      }
+    } else {
+      const r = S.rooms[id];
+      if (r) {
+        r.players = r.players.filter(p => p !== S.currentUser.name);
+        if (r.players.length === 0) delete S.rooms[id];
+      }
+    }
+    log("room", `${S.currentUser.name} odadan ayrıldı`);
+  }
+  S.currentRoom = null;
+  goLobby();
+};
+
+/* ──────────────────────────────────────
+   GAME
+──────────────────────────────────────── */
+window.startGame = async () => {
+  const id = S.currentRoom;
+  let room = S.rooms[id];
+  if (ONLINE && db) {
+    const snap = await get(ref(db, "rooms/" + id)).catch(() => null);
+    if (snap && snap.exists()) room = snap.val();
+  }
+  
+  const qs = [...(QUESTIONS[room.cat] || QUESTIONS.genel)].sort(() => Math.random() - 0.5).slice(0, 50);
+  const scores = {};
+  (room.players || []).forEach(p => scores[p] = 0);
+  
+  if (ONLINE && db) {
+    await update(ref(db, "rooms/" + id), { status: "playing", questions: qs, scores }).catch(() => {
+      room.status = "playing"; room.questions = qs; room.scores = scores;
+    });
+  } else {
+    room.status = "playing"; room.questions = qs; room.scores = scores;
+    S.rooms[id] = room;
+  }
+  
+  log("game", `"${room.name}" odası başladı – ${(room.players||[]).length} oyuncu`);
+  S.gamesPlayed++;
+  startGameClient(room);
+};
+
+function startGameClient(room) {
+  S.questions = room.questions || [];
+  S.scores = { ...(room.scores || {}) };
+  S.qIdx = 0;
+  show("s-game");
+  renderQuestion();
+}
+
+function renderQuestion() {
+  clearInterval(S.timerInterval);
+  S.answered = false;
+  S.timeLeft = 20;
+  
+  const q = S.questions[S.qIdx];
+  $("g-qnum").textContent = S.qIdx + 1;
+  $("g-score").textContent = (S.scores[S.currentUser.name] || 0) + " puan";
+  $("g-cat").textContent = catLabel(S.rooms[S.currentRoom]?.cat || "genel");
+  $("g-question").textContent = q.q;
+  $("g-feedback").textContent = "";
+  $("g-feedback").style.color = "var(--text)";
+  
+  $("g-opts").innerHTML = q.opts.map((o, i) => `
+    <button class="opt" onclick="answer(${i})" id="opt-${i}">
+      <span class="opt-letter">${String.fromCharCode(65+i)}</span>${o}
+    </button>`).join("");
+  
+  updateTimer();
+  S.timerInterval = setInterval(() => {
+    S.timeLeft--;
+    updateTimer();
+    if (S.timeLeft <= 0) { clearInterval(S.timerInterval); if (!S.answered) timeOut(); }
+  }, 1000);
+  
+  // Live scores
+  renderLiveScores();
+}
+
+function updateTimer() {
+  $("g-time").textContent = S.timeLeft + "s";
+  $("g-timer-fill").style.width = (S.timeLeft / 20 * 100) + "%";
+  $("g-timer-fill").style.background = S.timeLeft <= 5
+    ? "linear-gradient(90deg,var(--danger),#fc8181)"
+    : "linear-gradient(90deg,var(--accent),var(--accent2))";
+}
+
+function renderLiveScores() {
+  const sorted = Object.entries(S.scores).sort((a,b) => b[1]-a[1]).slice(0,5);
+  $("g-live").innerHTML = `<div style="margin-top:8px;border-top:1px solid var(--border);padding-top:8px">
+    ${sorted.map(([p,s]) => `<div class="live-row${p===S.currentUser.name?' me':''}">
+      <div class="avatar" style="width:24px;height:24px;font-size:11px">${p[0].toUpperCase()}</div>
+      <span style="font-size:13px">${p}</span>
+      <span style="margin-left:auto;font-family:var(--font-head);font-size:13px;color:var(--gold)">${s}</span>
+    </div>`).join("")}
+  </div>`;
+}
+
+window.answer = (idx) => {
+  if (S.answered) return;
+  S.answered = true;
+  clearInterval(S.timerInterval);
+  
+  const q = S.questions[S.qIdx];
+  const correct = idx === q.ans;
+  
+  document.querySelectorAll(".opt").forEach(b => b.disabled = true);
+  document.getElementById("opt-" + idx).classList.add(correct ? "correct" : "wrong");
+  if (!correct) document.getElementById("opt-" + q.ans).classList.add("correct");
+  
+  if (correct) {
+    const pts = Math.max(10, S.timeLeft * 5);
+    S.scores[S.currentUser.name] = (S.scores[S.currentUser.name] || 0) + pts;
+    $("g-feedback").textContent = `✓ Doğru! +${pts} puan`;
+    $("g-feedback").style.color = "var(--success)";
+    if (ONLINE && db) {
+      update(ref(db, "rooms/" + S.currentRoom + "/scores"), { [S.currentUser.name]: S.scores[S.currentUser.name] }).catch(() => {});
+    }
+  } else {
+    $("g-feedback").textContent = "✗ Yanlış!";
+    $("g-feedback").style.color = "var(--danger)";
+  }
+  setTimeout(nextQuestion, 2000);
+};
+
+function timeOut() {
+  S.answered = true;
+  document.querySelectorAll(".opt").forEach(b => b.disabled = true);
+  const q = S.questions[S.qIdx];
+  document.getElementById("opt-" + q.ans).classList.add("correct");
+  $("g-feedback").textContent = "⏱ Süre doldu!";
+  $("g-feedback").style.color = "var(--danger)";
+  setTimeout(nextQuestion, 2000);
+}
+
+function nextQuestion() {
+  S.qIdx++;
+  if (S.qIdx >= S.questions.length) { endGame(); return; }
+  renderQuestion();
+}
+
+function endGame() {
+  clearInterval(S.timerInterval);
+  const id = S.currentRoom;
+  if (S.rooms[id]) S.rooms[id].status = "finished";
+  if (ONLINE && db) update(ref(db, "rooms/" + id), { status: "finished" }).catch(() => {});
+  
+  const sorted = Object.entries(S.scores).sort((a,b) => b[1]-a[1]);
+  const myRank = sorted.findIndex(([p]) => p === S.currentUser.name) + 1;
+  const winner = sorted[0];
+  log("game", `Oyun bitti – Kazanan: ${winner[0]} (${winner[1]} puan)`);
+  
+  const trophies = ["🥇","🥈","🥉"];
+  $("res-trophy").textContent = myRank <= 3 ? trophies[myRank-1] : "🎮";
+  $("res-title").textContent = myRank === 1 ? "Tebrikler, Kazandın! 🎉" : "Oyun Bitti!";
+  $("res-sub").textContent = `${myRank}. sıra · ${S.scores[S.currentUser.name] || 0} puan`;
+  $("res-board").innerHTML = sorted.map(([p,s],i) => `
+    <div class="score-item${p===S.currentUser.name?' me':''}">
+      <div class="rank-num">${i<3?trophies[i]:(i+1)+'.'}</div>
+      <div class="avatar">${p[0].toUpperCase()}</div>
+      <span style="font-weight:${p===S.currentUser.name?600:400}">${p}</span>
+      <span class="rank-pts">${s}</span>
+    </div>`).join("");
+  show("s-result");
+}
+
+window.backToLobby = () => {
+  const id = S.currentRoom;
+  if (id && ONLINE && db) remove(ref(db, "rooms/" + id)).catch(() => {});
+  else if (id) delete S.rooms[id];
+  S.currentRoom = null;
+  goLobby();
+};
+
+/* ──────────────────────────────────────
+   ADMIN
+──────────────────────────────────────── */
+window.goAdmin = () => {
+  if (S.currentUser?.role !== "admin") return;
+  refreshAdmin();
+  show("s-admin");
+};
+
+window.refreshAdmin = async () => {
+  let users = S.users, rooms = S.rooms, logs = S.logs;
+  if (ONLINE && db) {
+    const [us, rs, ls] = await Promise.all([
+      get(ref(db, "users")).catch(() => null),
+      get(ref(db, "rooms")).catch(() => null),
+      get(ref(db, "logs")).catch(() => null)
+    ]);
+    if (us && us.exists()) users = us.val();
+    if (rs && rs.exists()) rooms = rs.val() || {};
+    if (ls && ls.exists()) {
+      const raw = ls.val() || {};
+      logs = Object.values(raw).sort((a,b)=>b.ts-a.ts);
+    }
+  }
+  $("adm-users").textContent = Object.keys(users).length;
+  $("adm-games").textContent = S.gamesPlayed;
+  $("adm-rooms").textContent = Object.keys(rooms).length;
+  $("adm-logs").textContent = logs.length;
+  window._admData = { users, rooms, logs };
+  admTab(window._admCurrentTab || "logs");
+};
+
+window.admTab = (t) => {
+  window._admCurrentTab = t;
+  ["logs","users","rooms"].forEach(tab => {
+    $("at-"+tab).className = "admin-tab" + (t===tab?" active":"");
+  });
+  const data = window._admData || { users: S.users, rooms: S.rooms, logs: S.logs };
+  const el = $("adm-content");
+  
+  if (t === "logs") {
+    if (!data.logs.length) { el.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--muted)">Henüz log yok.</div>'; return; }
+    el.innerHTML = data.logs.slice(0,100).map(l => `
+      <div class="log-entry">
+        <span class="log-time">${l.time}</span>
+        <span class="log-type">[${l.type}]</span>
+        <span class="log-msg">${l.msg}</span>
+      </div>`).join("");
+  } else if (t === "users") {
+    el.innerHTML = `
+      <div class="t-row"><div class="t-name">Kullanıcı</div><div class="t-meta">Rol</div><div class="t-meta">Oyun</div><div class="t-actions"></div></div>
+      ${Object.entries(data.users).map(([n,u]) => `
+        <div class="t-row">
+          <div class="t-name" style="display:flex;align-items:center;gap:8px">
+            <div class="avatar" style="width:28px;height:28px;font-size:11px">${n[0].toUpperCase()}</div>${n}
+          </div>
+          <div class="t-meta"><span class="badge ${u.role==='admin'?'badge-admin':'badge-user'}">${u.role}</span></div>
+          <div class="t-meta">${u.games||0}</div>
+          <div class="t-actions">${u.role!=='admin'?`<button class="btn btn-danger btn-sm" onclick="banUser('${n}')">Sil</button>`:''}</div>
+        </div>`).join("")}`;
+  } else {
+    const rs = Object.values(data.rooms);
+    if (!rs.length) { el.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--muted)">Açık oda yok.</div>'; return; }
+    el.innerHTML = rs.map(r => `
+      <div class="t-row">
+        <div class="t-name">${r.name}<br><span style="font-size:11px;color:var(--muted)">${catLabel(r.cat)} · #${r.code}</span></div>
+        <div class="t-meta">${(r.players||[]).length} kişi</div>
+        <div class="t-meta"><span class="badge ${r.status==='playing'?'badge-admin':'badge-user'}">${r.status}</span></div>
+        <div class="t-actions"><button class="btn btn-danger btn-sm" onclick="forceClose('${r.id}')">Kapat</button></div>
+      </div>`).join("");
+  }
+};
+
+window.banUser = async (n) => {
+  if (!confirm(`"${n}" kullanıcısını sil?`)) return;
+  if (ONLINE && db) await remove(ref(db, "users/" + n)).catch(() => { delete S.users[n]; });
+  else delete S.users[n];
+  log("admin", `Admin ${n} kullanıcısını sildi`);
+  refreshAdmin();
+};
+
+window.forceClose = async (id) => {
+  const name = (S.rooms[id] || {}).name || id;
+  if (ONLINE && db) await remove(ref(db, "rooms/" + id)).catch(() => { delete S.rooms[id]; });
+  else delete S.rooms[id];
+  log("admin", `Admin "${name}" odasını kapattı`);
+  refreshAdmin();
+};
+
+// Init
+log("system", "BilgiKing sunucusu başlatıldı" + (ONLINE ? " (Firebase bağlantılı)" : " (yerel mod)"));
+if (!ONLINE) {
+  // Demo kullanıcılar
+  S.users["demo"] = { pass: "1234", role: "user", games: 3 };
+  S.users["ahmet"] = { pass: "1234", role: "user", games: 5 };
+  log("system", "Offline mod aktif – Firebase kurulumu için dosya içindeki yorumları okuyun");
+} else {
+  // Online modda admin hesabı yoksa otomatik oluştur
+  get(ref(db, "users/admin")).then(snap => {
+    if (!snap.exists()) {
+      set(ref(db, "users/admin"), { pass: "admin123", role: "admin", games: 0 });
+      log("system", "Admin hesabı oluşturuldu");
+    }
+  }).catch(() => {});
+}
+</script>
+
+<!--
+╔══════════════════════════════════════════════════════════════════╗
+║           🔥 FIREBASE KURULUM REHBERİ (15 dakika)               ║
+╠══════════════════════════════════════════════════════════════════╣
+║                                                                  ║
+║  1. https://console.firebase.google.com adresine git            ║
+║  2. "Add project" → proje adı ver → devam et                    ║
+║  3. Sol menü "Build" → "Realtime Database" → "Create database"  ║
+║  4. "Start in test mode" seç → "Enable"                        ║
+║  5. Sol menü → Proje adının yanındaki ⚙️ → "Project settings"  ║
+║  6. "Your apps" → </> (Web) butonuna tıkla                     ║
+║  7. Uygulama adı ver → "Register app"                          ║
+║  8. Çıkan firebaseConfig'i bu dosyada                          ║
+║     "BURAYA_..." yazan yerlere yapıştır                        ║
+║  9. Bu HTML dosyasını kaydet ve tarayıcıda aç                  ║
+║ 10. Ücretsiz hosting: https://app.netlify.com →                ║
+║     "Add new site" → "Deploy manually" → HTML dosyasını sürükle║
+║                                                                  ║
+║  Firebase kurulmadan da YEREL MODDA çalışır.                   ║
+║  Yerel modda odalar ve kullanıcılar sadece o sekmededir.        ║
+╚══════════════════════════════════════════════════════════════════╝
+-->
+</body>
+</html>
