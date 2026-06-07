@@ -788,18 +788,18 @@ window.startGame = async () => {
   const scores = {};
   (room.players || []).forEach(p => scores[p] = 0);
   
+  // Önce local objeyi güncelle
+  room.status = "playing";
+  room.questions = qs;
+  room.scores = scores;
+  S.rooms[id] = room;
+
   if (ONLINE && db) {
     try {
-      await update(ref(db, "rooms/" + id), { status: "playing", questions: qs, scores });
-      // Firebase'e yazıldıktan sonra güncel veriyi oku
-      const snap2 = await get(ref(db, "rooms/" + id));
-      if (snap2.exists()) room = snap2.val();
+      await set(ref(db, "rooms/" + id), room);
     } catch(e) {
-      room.status = "playing"; room.questions = qs; room.scores = scores;
+      console.error("Firebase yazma hatası:", e);
     }
-  } else {
-    room.status = "playing"; room.questions = qs; room.scores = scores;
-    S.rooms[id] = room;
   }
   
   log("game", `"${room.name}" odası başladı – ${(room.players||[]).length} oyuncu`);
