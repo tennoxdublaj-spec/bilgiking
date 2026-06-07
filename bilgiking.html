@@ -789,9 +789,14 @@ window.startGame = async () => {
   (room.players || []).forEach(p => scores[p] = 0);
   
   if (ONLINE && db) {
-    await update(ref(db, "rooms/" + id), { status: "playing", questions: qs, scores }).catch(() => {
+    try {
+      await update(ref(db, "rooms/" + id), { status: "playing", questions: qs, scores });
+      // Firebase'e yazıldıktan sonra güncel veriyi oku
+      const snap2 = await get(ref(db, "rooms/" + id));
+      if (snap2.exists()) room = snap2.val();
+    } catch(e) {
       room.status = "playing"; room.questions = qs; room.scores = scores;
-    });
+    }
   } else {
     room.status = "playing"; room.questions = qs; room.scores = scores;
     S.rooms[id] = room;
